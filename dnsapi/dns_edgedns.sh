@@ -359,11 +359,11 @@ _edgedns_rest() {
 }
 
 _edgedns_eg_timestamp() {
-   _debug "Generating signature timestamp"
-   # Gets the current UTC date and time and reformats it to yyyyMMddTHH:mm:ss+0000.
-   # Reference: https://developer.akamai.com/legacy/introduction/Client_Auth.html
-   _eg_timestamp="$(_utc_date | sed 's/-//g' | sed 's/ /T/' | sed 's/$/+0000/')"
-   _debug3 "_eg_timestamp" "$_eg_timestamp"
+  _debug "Generating signature timestamp"
+  # Gets the current UTC date and time and reformats it to yyyyMMddTHH:mm:ss+0000.
+  # Reference: https://developer.akamai.com/legacy/introduction/Client_Auth.html
+  _eg_timestamp="$(_utc_date | sed 's/-//g' | sed 's/ /T/' | sed 's/$/+0000/')"
+  _debug3 "_eg_timestamp" "$_eg_timestamp"
 }
 
 _edgedns_new_nonce() {
