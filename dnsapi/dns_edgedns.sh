@@ -410,7 +410,7 @@ _edgedns_make_data_to_sign() {
   _secure_debug2 "hdr" "$hdr"
   _edgedns_make_content_hash
   path="$(echo "$_request_url_path" | tr -d "\n\r" | sed 's/https\?:\/\///')"
-  path="${path#*$AKAMAI_HOST}"
+  path="${path#*"$AKAMAI_HOST"}"
   _debug "hier path" "$path"
   # dont expose headers to sign so use MT string
   _mdata="$(printf "%s\thttps\t%s\t%s\t%s\t%s\t%s" "$_request_method" "$AKAMAI_HOST" "$path" "" "$_hash" "$hdr")"
@@ -430,12 +430,54 @@ _edgedns_make_content_hash() {
   _debug2 "Content hash" "$_hash"
 }
 
+_edgedns_iconv_t_utf_8() {
+  if ! _exists iconv; then
+    _debug2 "iconv missing"
+    if ! _exists uconv; then
+      _debug2 "uconv missing"
+      if ! _exists perl; then
+        _debug2 "perl missing"
+        _err "iconv or uconv or perl not found"
+        return 1
+      fi
+    fi
+  fi
+  if _exists iconv; then
+    echo "$@" | iconv -t utf8
+  elif _exists uconv; then
+    echo "$@" | uconv -t UTF-8
+  else
+    echo "$@" | perl -p -e 'use Encode qw/encode/; print encode("UTF-8","$_"); $_="";'
+  fi
+}
+
+_edgedns_iconv_f_utf_8() {
+  if ! _exists iconv; then
+    _debug2 "iconv missing"
+    if ! _exists uconv; then
+      _debug2 "uconv missing"
+      if ! _exists perl; then
+        _debug2 "perl missing"
+        _err "iconv or uconv or perl not found"
+        return 1
+      fi
+    fi
+  fi
+  if _exists iconv; then
+    echo "$@" | iconv -f utf8
+  elif _exists uconv; then
+    echo "$@" | uconv -f UTF-8
+  else
+    echo "$@" | perl -p -e 'use Encode qw/decode encode/; print decode("UTF-8","$_"); $_="";'
+  fi
+}
+
 _edgedns_base64_hmac_sha256() {
   _debug2 "Generating hmac"
   data=$1
   key=$2
-  encoded_data="$(echo "$data" | iconv -t utf-8)"
-  encoded_key="$(echo "$key" | iconv -t utf-8)"
+  encoded_data=$(_edgedns_iconv_t_utf_8 "$data")
+  encoded_key=$(_edgedns_iconv_t_utf_8 "$key")
   _secure_debug2 "encoded data" "$encoded_data"
   _secure_debug2 "encoded key" "$encoded_key"
 
@@ -443,7 +485,7 @@ _edgedns_base64_hmac_sha256() {
   data_sig="$(echo "$encoded_data" | tr -d "\n\r" | _hmac sha256 "$encoded_key_hex" | _base64)"
 
   _secure_debug2 "data_sig:" "$data_sig"
-  _hmac_out="$(echo "$data_sig" | tr -d "\n\r" | iconv -f utf-8)"
+  _hmac_out="$(_edgedns_iconv_f_utf_8 "$(echo "$data_sig" | tr -d "\n\r")")"
   _secure_debug2 "hmac" "$_hmac_out"
 }
 
