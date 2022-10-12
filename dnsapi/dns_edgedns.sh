@@ -443,7 +443,7 @@ _edgedns_iconv_t_utf_8() {
     fi
   fi
   if _exists iconv; then
-    echo "$@" | iconv -t utf8
+    echo "$@" | iconv -t UTF8
   elif _exists uconv; then
     echo "$@" | uconv -t UTF-8
   else
@@ -464,7 +464,7 @@ _edgedns_iconv_f_utf_8() {
     fi
   fi
   if _exists iconv; then
-    echo "$@" | iconv -f utf8
+    echo "$@" | iconv -f UTF8
   elif _exists uconv; then
     echo "$@" | uconv -f UTF-8
   else
