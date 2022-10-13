@@ -442,13 +442,13 @@ _edgedns_iconv_t_utf_8() {
       fi
     fi
   fi
-  _debug3 "data for iconv: $@"
+  _debug3 "data for iconv: $*"
   if _exists iconv; then
-    echo "$@" | iconv -t UTF8
+    echo "$*" | iconv -t UTF-8
   elif _exists uconv; then
-    echo "$@" | uconv -t UTF-8
+    echo "$*" | uconv -t UTF-8
   else
-    echo "$@" | perl -p -e 'use Encode qw/encode/; print encode("UTF-8","$_"); $_="";'
+    echo "$*" | perl -p -e 'use Encode qw/encode/; print encode("UTF-8","$_"); $_="";'
   fi
 }
 
@@ -464,13 +464,13 @@ _edgedns_iconv_f_utf_8() {
       fi
     fi
   fi
-  _debug3 "data for iconv: $@"
+  _debug3 "data for iconv: $*"
   if _exists iconv; then
-    echo "$@" | iconv -f UTF8
+    echo "$*" | iconv -f UTF-8
   elif _exists uconv; then
-    echo "$@" | uconv -f UTF-8
+    echo "$*" | uconv -f UTF-8
   else
-    echo "$@" | perl -p -e 'use Encode qw/decode encode/; print decode("UTF-8","$_"); $_="";'
+    echo "$*" | perl -p -e 'use Encode qw/decode encode/; print decode("UTF-8","$_"); $_="";'
   fi
 }
 
