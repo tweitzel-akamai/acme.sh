@@ -442,6 +442,7 @@ _edgedns_iconv_t_utf_8() {
       fi
     fi
   fi
+  _debug3 "data for iconv: $@"
   if _exists iconv; then
     echo "$@" | iconv -t UTF8
   elif _exists uconv; then
@@ -463,6 +464,7 @@ _edgedns_iconv_f_utf_8() {
       fi
     fi
   fi
+  _debug3 "data for iconv: $@"
   if _exists iconv; then
     echo "$@" | iconv -f UTF8
   elif _exists uconv; then
@@ -478,15 +480,15 @@ _edgedns_base64_hmac_sha256() {
   key=$2
   encoded_data=$(_edgedns_iconv_t_utf_8 "$data")
   encoded_key=$(_edgedns_iconv_t_utf_8 "$key")
-  _secure_debug2 "encoded data" "$encoded_data"
-  _secure_debug2 "encoded key" "$encoded_key"
+  _debug2 "encoded data" "$encoded_data"
+  _debug2 "encoded key" "$encoded_key"
 
   encoded_key_hex=$(printf "%s" "$encoded_key" | _hex_dump | tr -d ' ')
   data_sig="$(echo "$encoded_data" | tr -d "\n\r" | _hmac sha256 "$encoded_key_hex" | _base64)"
 
-  _secure_debug2 "data_sig:" "$data_sig"
+  _debug2 "data_sig:" "$data_sig"
   _hmac_out="$(_edgedns_iconv_f_utf_8 "$(echo "$data_sig" | tr -d "\n\r")")"
-  _secure_debug2 "hmac" "$_hmac_out"
+  _debug2 "hmac" "$_hmac_out"
 }
 
 _edgedns_base64_sha256() {
