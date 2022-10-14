@@ -466,7 +466,7 @@ _edgedns_iconv_f_utf_8() {
       fi
     fi
   fi
-  _debug3 "iconv_t_input: $*"
+  _debug3 "iconv_f_input: $*"
   if _exists iconv; then
     __returnval=$(echo "$@" | iconv -f UTF-8)
   elif _exists uconv; then
@@ -474,7 +474,7 @@ _edgedns_iconv_f_utf_8() {
   else
     __returnval=$(echo "$@" | perl -p -e 'use Encode qw/decode encode/; print decode("UTF-8","$_"); $_="";')
   fi
-  _debug3 "iconv_t_output: $__returnval"
+  _debug3 "iconv_f_output: $__returnval"
   echo "$__returnval"
 }
 
@@ -500,7 +500,7 @@ _edgedns_base64_sha256() {
   trg=$1
   _secure_debug2 "digest data" "$trg"
   digest="$(echo "$trg" | tr -d "\n\r" | _digest "sha256")"
-  _sha256_out="$(echo "$digest" | tr -d "\n\r" | iconv -f utf-8)"
+  _sha256_out="$(_edgedns_iconv_f_utf_8 $(echo "$digest" | tr -d "\n\r"))"
   _secure_debug2 "digest decode" "$_sha256_out"
 }
 
