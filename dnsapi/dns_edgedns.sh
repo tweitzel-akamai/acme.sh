@@ -293,7 +293,7 @@ _edgedns_rest() {
   if [ "$m" != "GET" ] && [ "$m" != "DELETE" ]; then
     _edgedns_content_type="application/json"
     _debug3 "_request_body" "$_request_body"
-    _body_len=$(echo "$_request_body" | tr -d "\n\r" | awk '{print length}')
+    _body_len=$(echo "$_request_body" | xargs | awk '{print length}')
     _edgedns_headers="${_edgedns_headers}${tab}Content-Length: ${_body_len}"
   fi
   _edgedns_make_auth_header
@@ -327,7 +327,7 @@ _edgedns_rest() {
     return "$_ret"
   fi
   _debug2 "response" "${response}"
-  _code="$(grep "^HTTP" "$HTTP_HEADER" | _tail_n 1 | cut -d " " -f 2 | tr -d "\\r\\n")"
+  _code="$(grep "^HTTP" "$HTTP_HEADER" | _tail_n 1 | cut -d " " -f 2 | xargs)"
   _debug2 "http response code" "$_code"
   if [ "$_code" = "200" ] || [ "$_code" = "201" ]; then
     # All good
@@ -409,7 +409,7 @@ _edgedns_make_data_to_sign() {
   hdr=$1
   _secure_debug2 "hdr" "$hdr"
   _edgedns_make_content_hash
-  path="$(echo "$_request_url_path" | tr -d "\n\r" | sed 's/https\?:\/\///')"
+  path="$(echo "$_request_url_path" | xargs | sed 's/https\?:\/\///')"
   path="${path#*"$AKAMAI_HOST"}"
   _debug "hier path" "$path"
   # dont expose headers to sign so use MT string
@@ -488,10 +488,10 @@ _edgedns_base64_hmac_sha256() {
   _debug2 "encoded key" "$encoded_key"
 
   encoded_key_hex=$(printf "%s" "$encoded_key" | _hex_dump | tr -d ' ')
-  data_sig="$(echo "$encoded_data" | tr -d "\n\r" | _hmac sha256 "$encoded_key_hex" | _base64)"
+  data_sig="$(echo "$encoded_data" | xargs | _hmac sha256 "$encoded_key_hex" | _base64)"
 
   _debug2 "data_sig:" "$data_sig"
-  _hmac_out="$(_edgedns_iconv_f_utf_8 "$(echo "$data_sig" | tr -d "\n\r")")"
+  _hmac_out="$(_edgedns_iconv_f_utf_8 "$(echo "$data_sig" | xargs)")"
   _debug2 "hmac" "$_hmac_out"
 }
 
@@ -500,7 +500,7 @@ _edgedns_base64_sha256() {
   trg=$1
   _secure_debug2 "digest data" "$trg"
   digest="$(echo "$trg" | tr -d "\n\r" | _digest "sha256")"
-  _sha256_out="$(_edgedns_iconv_f_utf_8 "$(echo "$digest" | tr -d "\n\r")")"
+  _sha256_out="$(_edgedns_iconv_f_utf_8 "$(echo "$digest" | xargs )")"
   _secure_debug2 "digest decode" "$_sha256_out"
 }
 
