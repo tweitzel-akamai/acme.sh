@@ -444,11 +444,11 @@ _edgedns_iconv_t_utf_8() {
   fi
   _debug3 "iconv_t_input: $*"
   if _exists iconv; then
-    __returnval=$(echo "$@" | iconv -t UTF-8)
+    __returnval=$(echo "$@" | xargs | -iconv -t UTF-8)
   elif _exists uconv; then
-    __returnval=$(echo "$@" | uconv -t UTF-8)
+    __returnval=$(echo "$@" | xargs | uconv -t UTF-8)
   else
-    __returnval=$(echo "$@" | perl -p -e 'use Encode qw/encode/; print encode("UTF-8","$_"); $_="";')
+    __returnval=$(echo "$@" | xargs | perl -p -e 'use Encode qw/encode/; print encode("UTF-8","$_"); $_="";')
   fi
   _debug3 "iconv_t_output: $__returnval"
   echo "$__returnval"
@@ -468,11 +468,11 @@ _edgedns_iconv_f_utf_8() {
   fi
   _debug3 "iconv_f_input: $*"
   if _exists iconv; then
-    __returnval=$(echo "$@" | iconv -f UTF-8)
+    __returnval=$(echo "$@" | xargs | iconv -f UTF-8)
   elif _exists uconv; then
-    __returnval=$(echo "$@" | uconv -f UTF-8)
+    __returnval=$(echo "$@" | xargs | uconv -f UTF-8)
   else
-    __returnval=$(echo "$@" | perl -p -e 'use Encode qw/decode encode/; print decode("UTF-8","$_"); $_="";')
+    __returnval=$(echo "$@" | xargs | perl -p -e 'use Encode qw/decode encode/; print decode("UTF-8","$_"); $_="";')
   fi
   _debug3 "iconv_f_output: $__returnval"
   echo "$__returnval"
