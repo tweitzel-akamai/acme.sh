@@ -444,7 +444,7 @@ _edgedns_iconv_t_utf_8() {
   fi
   _debug3 "iconv_t_input: $*"
   if _exists iconv; then
-    __returnval=$(echo "$@" | xargs | -iconv -t UTF-8)
+    __returnval=$(echo "$@" | xargs | iconv -t UTF-8)
   elif _exists uconv; then
     __returnval=$(echo "$@" | xargs | uconv -t UTF-8)
   else
