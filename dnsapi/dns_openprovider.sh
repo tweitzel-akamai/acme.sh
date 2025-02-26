@@ -2,6 +2,7 @@
 # shellcheck disable=SC2034
 dns_openprovider_info='OpenProvider.eu
 Site: OpenProvider.eu
+Domains: OpenProvider.com
 Docs: github.com/acmesh-official/acme.sh/wiki/dnsapi#dns_openprovider
 Options:
  OPENPROVIDER_USER Username
@@ -186,7 +187,7 @@ _get_root() {
 
   results_retrieved=0
   while true; do
-    h=$(echo "$domain" | cut -d . -f $i-100)
+    h=$(echo "$domain" | cut -d . -f "$i"-100)
     _debug h "$h"
     if [ -z "$h" ]; then
       #not valid

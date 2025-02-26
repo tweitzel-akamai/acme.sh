@@ -1442,7 +1442,7 @@ _toPkcs() {
   else
     ${ACME_OPENSSL_BIN:-openssl} pkcs12 -export -out "$_cpfx" -inkey "$_ckey" -in "$_ccert" -certfile "$_cca"
   fi
-  if [ "$?" == "0" ]; then
+  if [ "$?" = "0" ]; then
     _savedomainconf "Le_PFXPassword" "$pfxPassword"
   fi
 
@@ -1625,6 +1625,11 @@ _time2str() {
 
   #Linux
   if date -u --date=@"$1" "+%Y-%m-%dT%H:%M:%SZ" 2>/dev/null; then
+    return
+  fi
+
+  #Omnios
+  if date -u -r "$1" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null; then
     return
   fi
 
@@ -1811,7 +1816,11 @@ _date2time() {
     return
   fi
   #Omnios
-  if da="$(echo "$1" | tr -d "Z" | tr "T" ' ')" perl -MTime::Piece -e 'print Time::Piece->strptime($ENV{da}, "%Y-%m-%d %H:%M:%S")->epoch, "\n";' 2>/dev/null; then
+  if python3 -c "import datetime; print(int(datetime.datetime.strptime(\"$1\", \"%Y-%m-%d %H:%M:%S\").replace(tzinfo=datetime.timezone.utc).timestamp()))" 2>/dev/null; then
+    return
+  fi
+  #Omnios
+  if python3 -c "import datetime; print(int(datetime.datetime.strptime(\"$1\", \"%Y-%m-%dT%H:%M:%SZ\").replace(tzinfo=datetime.timezone.utc).timestamp()))" 2>/dev/null; then
     return
   fi
   _err "Cannot parse _date2time $1"
@@ -2193,7 +2202,6 @@ _send_signed_request() {
         _debug2 _headers "$_headers"
         _CACHED_NONCE="$(echo "$_headers" | grep -i "Replay-Nonce:" | _head_n 1 | tr -d "\r\n " | cut -d ':' -f 2)"
       fi
-      _debug2 _CACHED_NONCE "$_CACHED_NONCE"
       if [ "$?" != "0" ]; then
         _err "Cannot connect to $nonceurl to get nonce."
         return 1
@@ -5810,7 +5818,7 @@ _deploy() {
         return 1
       fi
 
-      if ! $d_command "$_d" "$CERT_KEY_PATH" "$CERT_PATH" "$CA_CERT_PATH" "$CERT_FULLCHAIN_PATH"; then
+      if ! $d_command "$_d" "$CERT_KEY_PATH" "$CERT_PATH" "$CA_CERT_PATH" "$CERT_FULLCHAIN_PATH" "$CERT_PFX_PATH"; then
         _err "Error deploying for domain: $_d"
         return 1
       fi
@@ -6053,7 +6061,7 @@ installcronjob() {
     _script="$(_readlink "$_SCRIPT_")"
     _debug _script "$_script"
     if [ -f "$_script" ]; then
-      _info "Usinging the current script from: $_script"
+      _info "Using the current script from: $_script"
       lesh="$_script"
     else
       _err "Cannot install cronjob, $PROJECT_ENTRY not found."
@@ -6805,7 +6813,7 @@ _send_notify() {
 
   _nsource="$NOTIFY_SOURCE"
   if [ -z "$_nsource" ]; then
-    _nsource="$(hostname)"
+    _nsource="$(uname -n)"
   fi
 
   _nsubject="$_nsubject by $_nsource"
