@@ -440,8 +440,8 @@ _edgedns_iconv_t_utf_8() {
       _debug2 "uconv missing"
       if ! _exists perl; then
         _debug2 "perl missing"
-        _err "iconv or uconv or perl not found"
-        return 1
+        _err "iconv or uconv or perl not found, hopefully this is utf8"
+        __returnval="$@"
       fi
     fi
   fi
@@ -465,7 +465,7 @@ _edgedns_iconv_f_utf_8() {
       if ! _exists perl; then
         _debug2 "perl missing"
         _err "iconv or uconv or perl not found"
-        return 1
+        __returnval="$@"
       fi
     fi
   fi
